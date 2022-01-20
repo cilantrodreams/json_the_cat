@@ -1,26 +1,26 @@
 const request = require('request');
 
-// get breed name from command line argument
-// format for API by cutting off everything but first 4 letters
-const breed = process.argv[2];
-// send request to api for information on cat breed
-request(`https://api.thecatapi.com/v1/breeds/search?q=${breed}`, (error, response, body) => {
+const fetchBreedDescription = function(breedName, callback) {
+  // send request to api for information on cat breed
+  request(`https://api.thecatapi.com/v1/breeds/search?q=${breedName}`, (error, response, body) => {
 
-  // if request fails
-  if (error) {
-    console.log(error);
-    return;
-  }
+    // if request fails
+    if (error) {
+      callback(error, null);
+      return;
+    }
 
-  // parse JSON
-  const data = JSON.parse(body);
-  console.log(data);
-  // if breed not found
-  if (data.length === 0) {
-    console.log(`requested breed not found`);
-    return;
-  }
+    // parse JSON
+    const data = JSON.parse(body);
+    // if breed not found
+    if (!data.length) {
+      callback(null, 'Requested Breed not found');
+      return;
+    }
 
-  // print breed information to console.
-  console.log(data[0].breeds);
-});
+    // send breed information to callback
+    callback(null, data[0].description);
+  });
+};
+
+module.exports = { fetchBreedDescription };
